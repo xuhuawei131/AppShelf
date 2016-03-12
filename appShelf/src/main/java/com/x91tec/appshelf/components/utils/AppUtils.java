@@ -5,14 +5,20 @@ import android.app.ActivityManager.RunningServiceInfo;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.content.pm.Signature;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.provider.Settings;
 import android.telephony.TelephonyManager;
 import android.widget.Toast;
 
 import java.io.File;
+import java.security.MessageDigest;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -62,7 +68,7 @@ public class AppUtils {
     public static void installApk(Context context, Uri uri) {
         Intent i = new Intent(Intent.ACTION_VIEW);
         i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        i.setDataAndType(uri, "application/vnd.android.manager-archive");
+        i.setDataAndType(uri, "application/vnd.android.package-archive");
         context.startActivity(i);
     }
 
@@ -73,72 +79,9 @@ public class AppUtils {
      */
     public static void uninstallApk(Context cx, String packageName) {
         Intent intent = new Intent(Intent.ACTION_DELETE);
-        Uri packageURI = Uri.parse("manager:" + packageName);
+        Uri packageURI = Uri.parse("package:" + packageName);
         intent.setData(packageURI);
         cx.startActivity(intent);
-    }
-
-    /**
-     * This method is used to determine whether the service is running
-     *
-     * @param ctx       Interface to global information about an application environment
-     * @param className name of the service
-     * @return true if the service is running
-     * @see android.app.Service
-     */
-    public static boolean isServiceRunning(Context ctx, String className) {
-        boolean isRunning = false;
-        ActivityManager activityManager = (ActivityManager) ctx.getSystemService(Context.ACTIVITY_SERVICE);
-        List<RunningServiceInfo> servicesList = activityManager.getRunningServices(Integer.MAX_VALUE);
-        Iterator<RunningServiceInfo> l = servicesList.iterator();
-        while (l.hasNext()) {
-            RunningServiceInfo si = l.next();
-            if (className.equals(si.service.getClassName())) {
-                isRunning = true;
-            }
-        }
-        return isRunning;
-    }
-
-    public static boolean hasPermission(Context context, String permission) {
-        final PackageManager pm = context.getPackageManager();
-        if (pm == null) {
-            return false;
-        }
-
-        try {
-            return pm.checkPermission(permission, context.getPackageName()) == PackageManager.PERMISSION_GRANTED;
-        } catch (RuntimeException e) {
-            // To catch RuntimeException("Package manager has died") that can occur on some version of Android,
-            // when the remote PackageManager is unavailable. I suspect this sometimes occurs when the App is being reinstalled.
-            return false;
-        }
-    }
-
-    public static boolean isApplicationBroughtToBackground(Context mContext) {
-
-        ActivityManager am = (ActivityManager) mContext.getSystemService(Context.ACTIVITY_SERVICE);
-
-        List<ActivityManager.RunningTaskInfo> tasks = am.getRunningTasks(1);
-        if (!tasks.isEmpty()) {
-            ComponentName topActivity = tasks.get(0).topActivity;
-            if (!topActivity.getPackageName().equals(mContext.getPackageName())) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public static boolean isPackageExist(Context context, String pckName) {
-        try {
-            PackageInfo pckInfo = context.getPackageManager()
-                    .getPackageInfo(pckName, 0);
-            if (pckInfo != null)
-                return true;
-        } catch (NameNotFoundException e) {
-            e.printStackTrace();
-        }
-        return false;
     }
 
     public static String getDeviceId(Context mContext) {
@@ -151,35 +94,185 @@ public class AppUtils {
         return android.os.Build.MODEL;
     }
 
-    public static boolean openApp(Context context, String packageName) {
-        Intent mainIntent = context.getPackageManager()
-                .getLaunchIntentForPackage(packageName);
-        if (mainIntent == null) {
-            return false;
-        }
-        context.startActivity(mainIntent);
-        return true;
-    }
 
-    public static boolean existLauncher(Context context, String packageName){
-        Intent mainIntent = context.getPackageManager()
-                .getLaunchIntentForPackage(packageName);
-        return mainIntent!=null;
-    }
-
-    public static boolean openAppActivity(Context context, String packageName,
-                                          String activityName) {
-        Intent intent = new Intent(Intent.ACTION_MAIN);
-        intent.addCategory(Intent.CATEGORY_LAUNCHER);
-        ComponentName cn = new ComponentName(packageName, activityName);
-        intent.setComponent(cn);
+    public static Drawable getAppIconDrawable(Context ctx, String pkgName) {
+        PackageManager pm = ctx.getPackageManager();
+        PackageInfo pi = null;
         try {
-            context.startActivity(intent);
-            return true;
+            pi = pm.getPackageInfo(pkgName, PackageManager.GET_ACTIVITIES);
+            return pi.applicationInfo.loadIcon(pm);
+        } catch (PackageManager.NameNotFoundException e) {
+        }
+        return null;
+    }
+
+    public static Drawable getAppIconDrawable(Context ctx, PackageInfo pi) {
+        PackageManager pm = ctx.getPackageManager();
+        if (pi != null) {
+            return pi.applicationInfo.loadIcon(pm);
+        }
+        return null;
+    }
+
+    public static List<PackageInfo> getAllPackageInfo(Context ctx) {
+        PackageManager pm = ctx.getPackageManager();
+        return pm.getInstalledPackages(0);
+    }
+
+    public static boolean isAppInstalled(Context ctx, String pkg, int versionCode) {
+        PackageManager pm = ctx.getPackageManager();
+        PackageInfo pi;
+        try {
+            pi = pm.getPackageInfo(pkg, 0);
+            if (pi != null && pi.versionCode == versionCode) {
+                return true;
+            }
+        } catch (PackageManager.NameNotFoundException e) {
+        }
+        return false;
+    }
+
+    public static boolean isAppInstalled(Context ctx, String pkg) {
+        PackageManager pm = ctx.getPackageManager();
+        PackageInfo pi;
+        try {
+            pi = pm.getPackageInfo(pkg, 0);
+            if (pi != null) {
+                return true;
+            }
+        } catch (PackageManager.NameNotFoundException e) {
+        }
+        return false;
+    }
+
+    public static List<PackageInfo> getSystemPackageInfo(Context ctx) {
+        PackageManager pm = ctx.getPackageManager();
+        List<PackageInfo> allApps = pm.getInstalledPackages(0);
+        List<PackageInfo> sysAppList = new ArrayList<>();
+
+        for (PackageInfo pi : allApps) {
+            if ((pi.applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) > 0) {
+                sysAppList.add(pi);
+            }
+        }
+
+        return sysAppList;
+    }
+
+    public static List<PackageInfo> getInstallPackageInfo(Context ctx) {
+        PackageManager pm = ctx.getPackageManager();
+        List<PackageInfo> allApps = pm.getInstalledPackages(0);
+        List<PackageInfo> installAppList = new ArrayList<>();
+
+        for (PackageInfo pi : allApps) {
+            if ((pi.applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) <= 0) {
+                installAppList.add(pi);
+            }
+        }
+
+        return installAppList;
+    }
+
+    public static Drawable getAPKIconDrawable(Context ctx, String filePath) {
+        PackageManager pm = ctx.getPackageManager();
+        PackageInfo pkgInfo = pm.getPackageArchiveInfo(filePath, PackageManager.GET_ACTIVITIES);
+        if (pkgInfo != null) {
+            ApplicationInfo appInfo = pkgInfo.applicationInfo;
+            appInfo.sourceDir = filePath;
+            appInfo.publicSourceDir = filePath;
+            return appInfo.loadIcon(pm);
+        }
+        return null;
+    }
+
+    public static PackageInfo getPackageInfo(Context ctx, String pkgName) {
+        PackageManager pm = ctx.getPackageManager();
+        try {
+            return pm.getPackageInfo(pkgName, PackageManager.GET_ACTIVITIES);
+        } catch (PackageManager.NameNotFoundException e) {
+        }
+        return null;
+    }
+
+    public static ApplicationInfo getApplicationInfo(Context ctx, String pkgName) {
+        PackageManager pm = ctx.getPackageManager();
+        try {
+            return pm.getPackageInfo(pkgName, PackageManager.GET_SIGNATURES).applicationInfo;
+        } catch (PackageManager.NameNotFoundException e) {
+        }
+        return null;
+    }
+
+    public static PackageInfo getAPKPackageInfo(Context ctx, String filePath) {
+        PackageManager pm = ctx.getPackageManager();
+        PackageInfo pi = pm.getPackageArchiveInfo(filePath, PackageManager.GET_ACTIVITIES);
+        if (pi != null) {
+            pi.applicationInfo.sourceDir = filePath;
+            pi.applicationInfo.publicSourceDir = filePath;
+        }
+        return pi;
+    }
+
+    public static String getAppName(Context ctx, PackageInfo pi) {
+        return pi.applicationInfo.loadLabel(ctx.getPackageManager()).toString();
+    }
+
+    public static String getAppName(Context ctx, String pkg) {
+        PackageManager pm = ctx.getPackageManager();
+        try {
+            ApplicationInfo ai = pm.getPackageInfo(pkg, PackageManager.GET_ACTIVITIES).applicationInfo;
+            return ai.loadLabel(pm).toString();
+        } catch (PackageManager.NameNotFoundException e) {
+        }
+        return null;
+    }
+
+    public static String getAppSignature(Context ctx, String pkgName) {
+        PackageInfo pis = null;
+        try {
+            pis = ctx.getPackageManager()
+                    .getPackageInfo(pkgName,
+                            PackageManager.GET_SIGNATURES);
+            return hexDigest(pis.signatures[0].toByteArray());
+        } catch (NameNotFoundException e) {
+            e.printStackTrace();
+        }
+        return null;
+
+    }
+    /**
+     * 将签名字符串转换成需要的32位签名
+     *
+     * @param paramArrayOfByte 签名byte数组
+     * @return 32位签名字符串
+     */
+    private static String hexDigest(byte[] paramArrayOfByte) {
+        final char[] hexDigits = { 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 97,
+                98, 99, 100, 101, 102 };
+        try {
+            MessageDigest localMessageDigest = MessageDigest.getInstance("MD5");
+            localMessageDigest.update(paramArrayOfByte);
+            byte[] arrayOfByte = localMessageDigest.digest();
+            char[] arrayOfChar = new char[32];
+            for (int i = 0, j = 0; ; i++, j++) {
+                if (i >= 16) {
+                    return new String(arrayOfChar);
+                }
+                int k = arrayOfByte[i];
+                arrayOfChar[j] = hexDigits[(0xF & k >>> 4)];
+                arrayOfChar[++j] = hexDigits[(k & 0xF)];
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return "";
+    }
+    public static boolean isAllowInstallUnknownApp(Context ctx) {
+        try {
+            return Settings.Secure.getInt(ctx.getContentResolver(), Settings.Secure.INSTALL_NON_MARKET_APPS) == 1;
         } catch (Exception e) {
             return false;
         }
     }
-
 }
 

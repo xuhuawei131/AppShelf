@@ -67,7 +67,7 @@ public interface ActivityFace {
 
     void initComponents();
 
-    void registerComponentListeners();
+    void initComponentsData();
 
     void supportSwipeBack(int position, boolean isCaptureFullScreen);
 

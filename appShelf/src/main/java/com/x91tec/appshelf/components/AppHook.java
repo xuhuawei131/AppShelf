@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.Application;
 import android.content.res.Configuration;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.StrictMode;
 
 import com.developer.bsince.log.GOL;
@@ -38,6 +39,8 @@ public final class AppHook {
 
     private AppWatcher mWatcher;
 
+    private int appCount;
+
     private final Stack<Activity> activityStack = new Stack<>();
 
     public void ensureApplication(Application application){
@@ -63,6 +66,54 @@ public final class AppHook {
 
             StrictMode.setVmPolicy(builder.penaltyLog().build());
         }
+    }
+
+    public void registerActivityLifecycleCallbackUsedForProcessTool(){
+        registerActivityLifecycleCallbacks(new ActivityLifecycleCallbacksCompat() {
+            @Override
+            public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
+
+            }
+
+            @Override
+            public void onPostCreate(Activity activity, Bundle savedInstanceState) {
+
+            }
+
+            @Override
+            public void onActivityStarted(Activity activity) {
+                appCount++;
+            }
+
+            @Override
+            public void onActivityResumed(Activity activity) {
+
+            }
+
+            @Override
+            public void onActivityPaused(Activity activity) {
+
+            }
+
+            @Override
+            public void onActivityStopped(Activity activity) {
+                appCount--;
+            }
+
+            @Override
+            public void onActivitySaveInstanceState(Activity activity, Bundle outState) {
+
+            }
+
+            @Override
+            public void onActivityDestroyed(Activity activity) {
+
+            }
+        });
+    }
+
+    public int getAppCount() {
+        return appCount;
     }
 
     public static void onTerminate(Application application){
@@ -199,7 +250,7 @@ public final class AppHook {
                 android.os.Process.killProcess(android.os.Process.myPid());
             }
             System.exit(0);
-        } catch (Exception e) {
+        } catch (Exception ignored) {
         }
     }
 
@@ -213,10 +264,15 @@ public final class AppHook {
 
     public static <App extends Application> App getApp() {
         Application app = get().mApplication;
-        if(!get().checkApplication()){
-            return null;
+        if(app==null){
+            Activity activity = get().currentActivity();
+            if(activity==null){
+                return null;
+            }
+            app = activity.getApplication();
+            get().ensureApplication(app);
         }
-       return  (App) get().mApplication;
+       return  (App) app;
     }
 
 

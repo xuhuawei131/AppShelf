@@ -12,15 +12,16 @@ import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.bison.support.R;
 
-import static com.bison.support.v4.ViewTool.*;
-import static com.bison.support.v4.ViewTool.equalIntTag;
-import static com.bison.support.v4.ViewTool.hideView;
-import static com.bison.support.v4.ViewTool.hideViewAnimated;
-import static com.bison.support.v4.ViewTool.safeClearViewAnimation;
-import static com.bison.support.v4.ViewTool.showView;
-import static com.bison.support.v4.ViewTool.showViewAnimated;
+import com.x91tec.appshelf.R;
+
+import static com.x91tec.appshelf.v4.ViewTool.*;
+import static com.x91tec.appshelf.v4.ViewTool.equalIntTag;
+import static com.x91tec.appshelf.v4.ViewTool.hideView;
+import static com.x91tec.appshelf.v4.ViewTool.hideViewAnimated;
+import static com.x91tec.appshelf.v4.ViewTool.safeClearViewAnimation;
+import static com.x91tec.appshelf.v4.ViewTool.showView;
+import static com.x91tec.appshelf.v4.ViewTool.showViewAnimated;
 
 /**
  * Created by oeager on 2015/11/10.

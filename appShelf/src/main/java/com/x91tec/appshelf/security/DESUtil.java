@@ -28,11 +28,11 @@ public class DESUtil {
 	/** 加密KEY */
 	private static final byte[] KEY = "7;9Ku7;:84VG*B78".getBytes();
 	/** 算法 */
-	private static final String ALGORITHM = "DESUtil";
+	private static final String ALGORITHM = "DES";
 	/** IV */
 	private static final byte[] IV = "sHjrydLq".getBytes();
 	/** TRANSFORMATION */
-	private static final String TRANSFORMATION = "DESUtil/CBC/PKCS5Padding";
+	private static final String TRANSFORMATION = "DES/CBC/PKCS5Padding";
 	
 	private int code = 0;
 	

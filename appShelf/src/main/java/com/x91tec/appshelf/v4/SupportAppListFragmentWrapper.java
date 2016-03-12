@@ -16,16 +16,15 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.bison.support.R;
+import com.x91tec.appshelf.R;
 
-import static com.bison.support.v4.ViewTool.*;
-import static com.bison.support.v4.ViewTool.equalIntTag;
-import static com.bison.support.v4.ViewTool.hideView;
-import static com.bison.support.v4.ViewTool.hideViewAnimated;
-import static com.bison.support.v4.ViewTool.isViewVisible;
-import static com.bison.support.v4.ViewTool.safeClearViewAnimation;
-import static com.bison.support.v4.ViewTool.showView;
-import static com.bison.support.v4.ViewTool.showViewAnimated;
+import static com.x91tec.appshelf.v4.ViewTool.equalIntTag;
+import static com.x91tec.appshelf.v4.ViewTool.hideView;
+import static com.x91tec.appshelf.v4.ViewTool.hideViewAnimated;
+import static com.x91tec.appshelf.v4.ViewTool.isViewVisible;
+import static com.x91tec.appshelf.v4.ViewTool.safeClearViewAnimation;
+import static com.x91tec.appshelf.v4.ViewTool.showView;
+import static com.x91tec.appshelf.v4.ViewTool.showViewAnimated;
 
 public abstract class SupportAppListFragmentWrapper<T extends Activity> extends Fragment {
     final private Handler mHandler = new Handler();
@@ -215,7 +214,7 @@ public abstract class SupportAppListFragmentWrapper<T extends Activity> extends 
             if (!isViewVisible(mContentView) && !hadAdapter) {
                 // The list was hidden, and previously didn't have an
                 // adapter. It is now time to show it.
-                setListShown(getView().getWindowToken() != null);
+                showOnBindData(getView().getWindowToken() != null);
             }
         }
     }
@@ -327,7 +326,7 @@ public abstract class SupportAppListFragmentWrapper<T extends Activity> extends 
         return lv;
     }
 
-    protected void setListShown(boolean animate) {
+    protected void showOnBindData(boolean animate) {
         if (mContentView == null) {
             return;
         }

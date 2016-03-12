@@ -1,12 +1,14 @@
 package com.x91tec.appshelf.resources;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
+
+import com.x91tec.appshelf.storage.FileUtil;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * AssetDatabaseOpenHelper
@@ -46,6 +48,7 @@ public class AssetDatabaseOpenHelper {
             }
         }
 
+        assert dbFile != null;
         return SQLiteDatabase.openDatabase(dbFile.getPath(), null, SQLiteDatabase.OPEN_READWRITE);
     }
 
@@ -66,6 +69,7 @@ public class AssetDatabaseOpenHelper {
             }
         }
 
+        assert dbFile != null;
         return SQLiteDatabase.openDatabase(dbFile.getPath(), null, SQLiteDatabase.OPEN_READONLY);
     }
 
@@ -78,7 +82,7 @@ public class AssetDatabaseOpenHelper {
 
     private void copyDatabase(File dbFile) throws IOException {
         InputStream stream = context.getAssets().open(databaseName);
-        FileUtils.writeFile(dbFile, stream);
+        FileUtil.writeFile(dbFile, stream);
         stream.close();
     }
 }

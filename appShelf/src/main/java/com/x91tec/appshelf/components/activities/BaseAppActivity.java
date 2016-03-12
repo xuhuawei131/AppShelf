@@ -3,6 +3,7 @@ package com.x91tec.appshelf.components.activities;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.StringRes;
@@ -38,14 +39,20 @@ public abstract class BaseAppActivity extends AppCompatActivity implements Activ
         this.wasCreated = true;
         this.currentIntent = getIntent();
         AppHook.joinActivity(this);
-        LifecycleCompatDispatcher.getDefault().onActivityCreated(this, savedInstanceState);
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+            LifecycleCompatDispatcher.getDefault().onActivityCreated(this, savedInstanceState);
+        }
+
     }
 
 
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
-        LifecycleCompatDispatcher.getDefault().onPostCreate(this, savedInstanceState);
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+            LifecycleCompatDispatcher.getDefault().onPostCreate(this, savedInstanceState);
+        }
+
     }
 
     @Override
@@ -53,7 +60,7 @@ public abstract class BaseAppActivity extends AppCompatActivity implements Activ
         super.setContentView(layoutResID);
         initTitleBar();
         initComponents();
-        registerComponentListeners();
+        initComponentsData();
     }
 
 
@@ -63,7 +70,7 @@ public abstract class BaseAppActivity extends AppCompatActivity implements Activ
         super.setContentView(view);
         initTitleBar();
         initComponents();
-        registerComponentListeners();
+        initComponentsData();
     }
 
 
@@ -73,7 +80,7 @@ public abstract class BaseAppActivity extends AppCompatActivity implements Activ
         super.setContentView(view, params);
         initTitleBar();
         initComponents();
-        registerComponentListeners();
+        initComponentsData();
     }
 
     @Override
@@ -92,14 +99,20 @@ public abstract class BaseAppActivity extends AppCompatActivity implements Activ
     @Override
     protected void onStart() {
         super.onStart();
-        LifecycleCompatDispatcher.getDefault().onActivityStarted(this);
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+            LifecycleCompatDispatcher.getDefault().onActivityStarted(this);
+        }
+
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         isFocus = true;
-        LifecycleCompatDispatcher.getDefault().onActivityResumed(this);
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+            LifecycleCompatDispatcher.getDefault().onActivityResumed(this);
+        }
+
     }
 
 
@@ -108,13 +121,19 @@ public abstract class BaseAppActivity extends AppCompatActivity implements Activ
         super.onPause();
         isFocus = false;
         wasCreated = wasInterrupted = false;
-        LifecycleCompatDispatcher.getDefault().onActivityPaused(this);
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+            LifecycleCompatDispatcher.getDefault().onActivityPaused(this);
+        }
+
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        LifecycleCompatDispatcher.getDefault().onActivityStopped(this);
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+            LifecycleCompatDispatcher.getDefault().onActivityStopped(this);
+        }
+
     }
 
     @Override
@@ -125,7 +144,10 @@ public abstract class BaseAppActivity extends AppCompatActivity implements Activ
             toast.cancel();
             toast = null;
         }
-        LifecycleCompatDispatcher.getDefault().onActivityDestroyed(this);
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+            LifecycleCompatDispatcher.getDefault().onActivityDestroyed(this);
+        }
+
 
     }
 
@@ -133,7 +155,10 @@ public abstract class BaseAppActivity extends AppCompatActivity implements Activ
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        LifecycleCompatDispatcher.getDefault().onActivitySaveInstanceState(this, outState);
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+            LifecycleCompatDispatcher.getDefault().onActivitySaveInstanceState(this, outState);
+        }
+
     }
 
     @Override
