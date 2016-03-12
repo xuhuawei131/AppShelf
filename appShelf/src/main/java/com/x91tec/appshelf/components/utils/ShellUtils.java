@@ -6,24 +6,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.List;
 
-/**
- * ShellUtils
- * <ul>
- * <strong>Check root</strong>
- * <li>{@link ShellUtils#checkRootPermission()}</li>
- * </ul>
- * <ul>
- * <strong>Execte command</strong>
- * <li>{@link ShellUtils#execCommand(String, boolean)}</li>
- * <li>{@link ShellUtils#execCommand(String, boolean, boolean)}</li>
- * <li>{@link ShellUtils#execCommand(List, boolean)}</li>
- * <li>{@link ShellUtils#execCommand(List, boolean, boolean)}</li>
- * <li>{@link ShellUtils#execCommand(String[], boolean)}</li>
- * <li>{@link ShellUtils#execCommand(String[], boolean, boolean)}</li>
- * </ul>
- * 
- * @author <a href="http://www.trinea.cn" target="_blank">Trinea</a> 2013-5-16
- */
 public class ShellUtils {
 
     public static final String COMMAND_SU       = "su";
@@ -106,18 +88,7 @@ public class ShellUtils {
         return execCommand(commands == null ? null : commands.toArray(new String[] {}), isRoot, isNeedResultMsg);
     }
 
-    /**
-     * execute shell commands
-     * 
-     * @param commands command array
-     * @param isRoot whether need to run with root
-     * @param isNeedResultMsg whether need result msg
-     * @return <ul>
-     *         <li>if isNeedResultMsg is false, {@link CommandResult#successMsg} is null and
-     *         {@link CommandResult#errorMsg} is null.</li>
-     *         <li>if {@link CommandResult#result} is -1, there maybe some excepiton.</li>
-     *         </ul>
-     */
+
     public static CommandResult execCommand(String[] commands, boolean isRoot, boolean isNeedResultMsg) {
         int result = -1;
         if (commands == null || commands.length == 0) {
@@ -162,8 +133,6 @@ public class ShellUtils {
                     errorMsg.append(s);
                 }
             }
-        } catch (IOException e) {
-            e.printStackTrace();
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -189,16 +158,6 @@ public class ShellUtils {
                 : errorMsg.toString());
     }
 
-    /**
-     * result of command
-     * <ul>
-     * <li>{@link CommandResult#result} means result of command, 0 means normal, else means error, same to excute in
-     * linux shell</li>
-     * <li>{@link CommandResult#successMsg} means success message of command result</li>
-     * <li>{@link CommandResult#errorMsg} means error message of command result</li>
-     * </ul>
-     * 
-     */
     public static class CommandResult {
 
         /** result of command **/

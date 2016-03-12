@@ -1,20 +1,3 @@
-/*
- * Copyright (C) 2015. Jared Rummler <jared.rummler@gmail.com>
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- */
-
 package com.x91tec.appshelf.process;
 
 import android.app.ActivityManager;
@@ -29,11 +12,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-/**
- * Helper class to get a list of processes on Android.
- * <p/>
- * <p><b>Note:</b> Every method in this class should <i>not</i> be executed on the main thread.</p>
- */
+
 public class ProcessManager {
 
     private ProcessManager() {
@@ -95,12 +74,7 @@ public class ProcessManager {
         return processes;
     }
 
-    /**
-     * Get a list of user apps running in the foreground.
-     *
-     * @param ctx the application context
-     * @return a list of user apps that are in the foreground.
-     */
+
     public static List<AndroidAppProcess> getRunningForegroundApps(Context ctx) {
         List<AndroidAppProcess> processes = new ArrayList<>();
         File[] files = new File("/proc").listFiles();
@@ -142,9 +116,7 @@ public class ProcessManager {
         return processes;
     }
 
-    /**
-     * @return {@code true} if this process is in the foreground.
-     */
+
     public static boolean isMyProcessInTheForeground() {
         List<AndroidAppProcess> processes = getRunningAppProcesses();
         int myPid = android.os.Process.myPid();
@@ -156,23 +128,6 @@ public class ProcessManager {
         return false;
     }
 
-    /**
-     * Returns a list of application processes that are running on the device.
-     * <p/>
-     * <p><b>NOTE:</b> On Lollipop (SDK 22) this does not provide
-     * {@link RunningAppProcessInfo#pkgList},
-     * {@link RunningAppProcessInfo#importance},
-     * {@link RunningAppProcessInfo#lru},
-     * {@link RunningAppProcessInfo#importanceReasonCode},
-     * {@link RunningAppProcessInfo#importanceReasonComponent},
-     * {@link RunningAppProcessInfo#importanceReasonPid},
-     * etc. If you need more process information try using
-     * {@link #getRunningAppProcesses()} or {@link android.app.usage.UsageStatsManager}</p>
-     *
-     * @return a list of RunningAppProcessInfo records, or null if there are no
-     * running processes (it will not return an empty list).  This list ordering is not
-     * specified.
-     */
     public static List<RunningAppProcessInfo> getRunningAppProcessInfo(Context ctx) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
             List<AndroidAppProcess> runningAppProcesses = ProcessManager.getRunningAppProcesses();
@@ -191,17 +146,7 @@ public class ProcessManager {
         return am.getRunningAppProcesses();
     }
 
-    /**
-     * Get a list of running processes based on name, pid, ppid, or other conditions.
-     * <p/>
-     * <p>Example usage:</p>
-     * <p/>
-     * <pre>
-     *   // Get all processes that contain the name "google"
-     *   Filter filter = new ProcessManager.Filter().setName("google");
-     *   List&lt;AndroidProcess&gt; processes = filter.run();
-     * </pre>
-     */
+
     @Deprecated
     public static class Filter {
 
@@ -210,49 +155,34 @@ public class ProcessManager {
         private int ppid = -1;
         private boolean apps;
 
-        /**
-         * @param name The name of the process to filter
-         * @return This Filter object to allow for chaining of calls to set methods
-         */
+
         @Deprecated
         public Filter setName(String name) {
             this.name = name;
             return this;
         }
 
-        /**
-         * @param pid The process id to filter
-         * @return This Filter object to allow for chaining of calls to set methods
-         */
+
         @Deprecated
         public Filter setPid(int pid) {
             this.pid = pid;
             return this;
         }
 
-        /**
-         * @param ppid The parent process id to filter
-         * @return This Filter object to allow for chaining of calls to set methods
-         */
         @Deprecated
         public Filter setPpid(int ppid) {
             this.ppid = ppid;
             return this;
         }
 
-        /**
-         * @param apps {@code true} to only filter app processes
-         * @return This Filter object to allow for chaining of calls to set methods
-         */
+
         @Deprecated
         public Filter setApps(boolean apps) {
             this.apps = apps;
             return this;
         }
 
-        /**
-         * @return a List of processes based on the filter options.
-         */
+
         @Deprecated
         public List<AndroidProcess> run() {
             List<AndroidProcess> processes = new ArrayList<>();

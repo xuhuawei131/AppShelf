@@ -24,9 +24,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-/**
- * Created by wenmingvs on 2016/1/14.
- */
+
 public class ProcessTool {
     public static final int BKGMETHOD_GETRUNNING_TASK = 0;
     public static final int BKGMETHOD_GETRUNNING_PROCESS = 1;
@@ -35,14 +33,6 @@ public class ProcessTool {
     public static final int BKGMETHOD_GETACCESSIBILITYSERVICE = 4;
     public static final int BKGMETHOD_GETLINUXPROCESS = 5;
 
-
-    /**
-     * 自动根据参数选择判断前后台的方法
-     *
-     * @param context     上下文参数
-     * @param packageName 需要检查是否位于栈顶的App的包名
-     * @return
-     */
     public static boolean isForeground(Context context, int methodID, String packageName) {
         switch (methodID) {
             case BKGMETHOD_GETRUNNING_TASK:

@@ -1,5 +1,29 @@
 apply plugin: 'com.android.library'
 
+ext {
+    bintrayRepo = 'maven'
+    bintrayName = 'AppShelf'
+
+    publishedGroupId = 'com.91tec'
+    libraryName = 'appShelf'
+    artifact = 'appShelf'
+
+    libraryDescription = 'a shelf of android apps for developers'
+
+    siteUrl = 'https://github.com/oeager/AppShelf'
+    gitUrl = 'https://github.com/oeager/AppShelf.git'
+
+    libraryVersion = '2.1.0'
+
+    developerId = 'oeager'
+    developerName = 'oeager'
+    developerEmail = 'oeager@foxmail.com'
+
+    licenseName = 'The Apache Software License, Version 2.0'
+    licenseUrl = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+    allLicenses = ["Apache-2.0"]
+}
+
 android {
     compileSdkVersion 23
     buildToolsVersion "23.0.2"
@@ -8,14 +32,17 @@ android {
 //        applicationId "com.x91tec.appshelf"
         minSdkVersion 14
         targetSdkVersion 23
-        versionCode 4
-        versionName "1.0"
+        versionCode 5
+        versionName "2.1.0"
     }
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+    }
+    lintOptions {
+        abortOnError false
     }
 }
 
@@ -26,3 +53,5 @@ dependencies {
     compile 'com.developer.log:app:1.1.0'
     compile 'com.android.support:design:23.2.0'
 }
+apply from: 'install.gradle'
+apply from: 'upload.gradle'

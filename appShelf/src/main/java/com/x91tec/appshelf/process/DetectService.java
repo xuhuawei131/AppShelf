@@ -6,9 +6,7 @@ import android.provider.Settings;
 import android.util.Log;
 import android.view.accessibility.AccessibilityEvent;
 
-/**
- * Created by wenmingvs on 16/2/10.
- */
+
 public class DetectService extends AccessibilityService {
 
     private static String mForegroundPackageName;

@@ -1,41 +1,9 @@
-/*
- * Copyright (C) 2015. Jared Rummler <jared.rummler@gmail.com>
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- */
-
 package com.x91tec.appshelf.process;
 
 import android.os.Parcel;
 
 import java.io.IOException;
 
-/**
- * <p>Provides information about memory usage, measured in pages.</p>
- * <p/>
- * <p>The columns are:</p>
- * <p/>
- * <ul>
- * <li>size       (1) total program size (same as VmSize in /proc/[pid]/status)</li>
- * <li>resident   (2) resident set size (same as VmRSS in /proc/[pid]/status)</li>
- * <li>share      (3) shared pages (i.e., backed by a file)</li>
- * <li>text       (4) text (code)</li>
- * <li>lib        (5) library (unused in Linux 2.6)</li>
- * <li>data       (6) data + stack</li>
- * <li>dt         (7) dirty pages (unused in Linux 2.6)</li>
- * </ul>
- */
 public final class Statm extends ProcFile {
 
     /**
