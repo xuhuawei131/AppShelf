@@ -29,6 +29,8 @@ public class XDividerDecoration extends RecyclerView.ItemDecoration {
 
     private DecorationFactory.OrientationHandler mOrientationHandler;
 
+    private DecorationFactory.SizeProvider mSizeProvider;
+
     protected XDividerDecoration(DecorationFactory.Builder builder) {
         this.mDecorationPainter = builder.mDecorationPainter;
         this.mVisibilityProvider = builder.mVisibilityProvider;
@@ -36,15 +38,20 @@ public class XDividerDecoration extends RecyclerView.ItemDecoration {
         this.mMarginProvider = builder.mMarginProvider;
         this.mOrientationHandler = builder.mOrientationHandler;
         this.isDrawablePaint = builder.isDrawablePaint;
+        this.mSizeProvider = builder.mSizeProvider;
         setItemInfoProvider(builder.gridLayout);
     }
 
     @Override
     public void onDraw(Canvas c, RecyclerView parent, RecyclerView.State state) {
+        if(mDecorationPainter==null){
+            return;
+        }
         RecyclerView.Adapter adapter = parent.getAdapter();
         if (adapter == null) {
             return;
         }
+
         int itemCount = adapter.getItemCount();
         int lastDividerOffset = mItemInfoProvider.lastDividerOffset(parent);
         int validChildCount = parent.getChildCount();
@@ -67,11 +74,11 @@ public class XDividerDecoration extends RecyclerView.ItemDecoration {
             }
 
             int groupIndex = mItemInfoProvider.itemIndex(childPosition, parent);
-            if (mVisibilityProvider.shouldHideDivider(groupIndex, parent)) {
+            if (mVisibilityProvider!=null&&mVisibilityProvider.shouldHideDivider(groupIndex, parent)) {
                 continue;
             }
-            int marginStart = mMarginProvider.dividerStartMargin(groupIndex, parent);
-            int marginEnd = mMarginProvider.dividerEndMargin(groupIndex, parent);
+            int marginStart =mMarginProvider==null?0: mMarginProvider.dividerStartMargin(groupIndex, parent);
+            int marginEnd = mMarginProvider==null?0:mMarginProvider.dividerEndMargin(groupIndex, parent);
             int dividerSize = mDecorationPainter.dividerSize(groupIndex, parent);
             Rect bounds = mOrientationHandler.dividerBoundsSetting(parent, child, marginStart, marginEnd, dividerSize,isDrawablePaint);
             mDecorationPainter.painting(parent, c, bounds, groupIndex);
@@ -90,7 +97,14 @@ public class XDividerDecoration extends RecyclerView.ItemDecoration {
             return;
         }
         int itemIndex = mItemInfoProvider.itemIndex(position, parent);
-        int dividerSize = mDecorationPainter.dividerSize(itemIndex, parent);
+        int dividerSize;
+        if(mDecorationPainter!=null){
+            dividerSize = mDecorationPainter.dividerSize(itemIndex, parent);
+        }else if (mSizeProvider!=null){
+            dividerSize = mSizeProvider.dividerSize(itemIndex,parent);
+        }else{
+            dividerSize = 0;
+        }
         mOrientationHandler.setItemOffsets(outRect, itemIndex, dividerSize);
 
     }

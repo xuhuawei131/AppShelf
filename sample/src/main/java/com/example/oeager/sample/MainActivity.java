@@ -111,7 +111,7 @@ public class MainActivity extends BaseAppActivity {
         mDataAdapter = new DataAdapter(this);
         mDataAdapter.addItems(dataList);
         LinearLayoutManager manager = new LinearLayoutManager(this);
-        manager.setOrientation(LinearLayoutManager.HORIZONTAL);
+        manager.setOrientation(LinearLayoutManager.VERTICAL);
         recyclerView.setLayoutManager(manager);
         IDataGetter dataGetter = new IDataGetter() {
             @Override
@@ -131,17 +131,12 @@ public class MainActivity extends BaseAppActivity {
         };
         RecyclerViewCompat.setAdapterAndLoadingFooter(recyclerView, mDataAdapter, dataGetter);
         XDividerDecoration decoration = new DecorationFactory.Builder()
-                .colorProvider(new DecorationFactory.ColorProvider() {
-                    @Override
-                    public int dividerColor(int position, RecyclerView parent) {
-                        return Colors.GREEN;
-                    }
-                },30)
-                .orientation(DecorationFactory.VERTICAL)
-                .paintBottom(false)
+                .onlySize(30)
+                .orientation(DecorationFactory.HORIZONTAL)
+                .paintBottom(true)
                         .gridLayout(false)
 //                .drawable(ContextCompat.getDrawable(this,R.drawable.divider))
-                .build(this);
+                .build();
         recyclerView.addItemDecoration(decoration);
     }
 
@@ -231,11 +226,11 @@ public class MainActivity extends BaseAppActivity {
 
             ViewHolder viewHolder = (ViewHolder) holder;
             viewHolder.textView.setText(item.title);
-//            if(position%2==0){
-//                viewHolder.itemView.setBackgroundColor(Colors.BLUE);
-//            }else {
-//                viewHolder.itemView.setBackgroundColor(Colors.YELLOW);
-//            }
+            if(position%2==0){
+                viewHolder.itemView.setBackgroundColor(Colors.BLUE);
+            }else {
+                viewHolder.itemView.setBackgroundColor(Colors.YELLOW);
+            }
         }
 
         @Override

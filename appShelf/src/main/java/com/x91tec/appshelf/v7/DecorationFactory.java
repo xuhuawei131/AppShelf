@@ -13,6 +13,8 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
+import com.developer.bsince.log.GOL;
+
 /**
  * Created by oeager on 16-3-11.
  */
@@ -277,6 +279,8 @@ public class DecorationFactory {
 
         boolean isDrawablePaint = false;
 
+        SizeProvider mSizeProvider;
+
 
         public Builder() {
 
@@ -304,6 +308,15 @@ public class DecorationFactory {
             });
         }
 
+        public Builder color(final int color,final int size){
+            return colorProvider(new ColorProvider() {
+                @Override
+                public int dividerColor(int position, RecyclerView parent) {
+                    return color;
+                }
+            },size);
+        }
+
         public Builder colorProvider(ColorProvider colorProvider) {
             return decorationPainter(new ColorPainter(colorProvider, generateSizeProvider(DEFAULT_SIZE)));
         }
@@ -328,7 +341,18 @@ public class DecorationFactory {
         public Builder drawableProvider(DrawableProvider drawableProvider) {
             return decorationPainter(new DrawablePainter(drawableProvider));
         }
-
+        public Builder defaultPainter(Context context) {
+            TypedArray a = context.obtainStyledAttributes(ATTRS);
+            final Drawable divider = a.getDrawable(0);
+            a.recycle();
+            mDecorationPainter = new DrawablePainter(new DrawableProvider() {
+                @Override
+                public Drawable drawableProvider(int position, RecyclerView parent) {
+                    return divider;
+                }
+            });
+            return this;
+        }
         public Builder decorationPainter(DecorationPainter painter) {
             this.mDecorationPainter = painter;
             this.isDrawablePaint = painter instanceof DrawablePainter;
@@ -379,6 +403,14 @@ public class DecorationFactory {
             return this;
         }
 
+        public Builder onlySize(int size){
+           return onlySizeProvider(generateSizeProvider(size));
+        }
+        public Builder onlySizeProvider(SizeProvider sizeProvider){
+            this.mSizeProvider = sizeProvider;
+            return this;
+        }
+
         SizeProvider generateSizeProvider(final int size) {
             return new SizeProvider() {
                 @Override
@@ -388,43 +420,23 @@ public class DecorationFactory {
             };
         }
 
-        public XDividerDecoration build(Context context) {
-            checkParams(context);
+        public XDividerDecoration build() {
+            checkParams();
             return new XDividerDecoration(this);
         }
 
-        void checkParams(Context context) {
+        void checkParams() {
             if (mDecorationPainter == null) {
-                TypedArray a = context.obtainStyledAttributes(ATTRS);
-                final Drawable divider = a.getDrawable(0);
-                a.recycle();
-                mDecorationPainter = new DrawablePainter(new DrawableProvider() {
-                    @Override
-                    public Drawable drawableProvider(int position, RecyclerView parent) {
-                        return divider;
-                    }
-                });
+                GOL.e("DecorationPainter is null");
+                if(mSizeProvider==null){
+                    GOL.e("offset size will be zero");
+                }
             }
             if (mVisibilityProvider == null) {
-                mVisibilityProvider = new VisibilityProvider() {
-                    @Override
-                    public boolean shouldHideDivider(int position, RecyclerView parent) {
-                        return false;
-                    }
-                };
+                GOL.e("VisibilityProvider is null");
             }
             if (mMarginProvider == null) {
-                mMarginProvider = new DecorationFactory.MarginProvider() {
-                    @Override
-                    public int dividerStartMargin(int position, RecyclerView parent) {
-                        return 0;
-                    }
-
-                    @Override
-                    public int dividerEndMargin(int position, RecyclerView parent) {
-                        return 0;
-                    }
-                };
+                GOL.e("MarginProvider is null");
             }
             if(mOrientationHandler==null){
                 mOrientationHandler = new HorizontalHandler();

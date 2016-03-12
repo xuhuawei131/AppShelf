@@ -155,4 +155,19 @@ public class RecyclerViewAdapterWrapper extends RecyclerView.Adapter<RecyclerVie
     public long getItemId(int position) {
         return super.getItemId(position);
     }
+
+    @Override
+    public void onAttachedToRecyclerView(RecyclerView recyclerView) {
+     if(mInnerAdapter!=null){
+         mInnerAdapter.onAttachedToRecyclerView(recyclerView);
+     }
+    }
+
+    @Override
+    public void onDetachedFromRecyclerView(RecyclerView recyclerView) {
+        if(mInnerAdapter!=null){
+            mInnerAdapter.onDetachedFromRecyclerView(recyclerView);
+        }
+    }
+
 }
