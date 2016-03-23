@@ -38,7 +38,6 @@ public abstract class BaseAppActivity extends AppCompatActivity implements Activ
         super.onCreate(savedInstanceState);
         this.wasCreated = true;
         this.currentIntent = getIntent();
-        AppHook.joinActivity(this);
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
             LifecycleCompatDispatcher.getDefault().onActivityCreated(this, savedInstanceState);
         }
@@ -139,7 +138,6 @@ public abstract class BaseAppActivity extends AppCompatActivity implements Activ
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        AppHook.quitActivity(this);
         if (toast != null) {
             toast.cancel();
             toast = null;

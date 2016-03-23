@@ -20,19 +20,14 @@ import java.util.Stack;
  */
 public final class AppHook {
 
-    public static volatile AppHook mDelegate;
-
     private AppHook(){}
 
     public static AppHook get(){
-        if(mDelegate==null){
-            synchronized (AppHook.class){
-                if(mDelegate==null){
-                    mDelegate = new AppHook();
-                }
-            }
-        }
-        return mDelegate;
+        return AppHolder.IMPL;
+    }
+
+    private static class AppHolder{
+        private final static AppHook IMPL = new AppHook();
     }
 
     private Application mApplication;
@@ -42,6 +37,8 @@ public final class AppHook {
     private int appCount;
 
     private final Stack<Activity> activityStack = new Stack<>();
+
+    private ActivityLifecycleCallbacksCompat callbacksCompat;
 
     public void ensureApplication(Application application){
         if(mApplication==null){
@@ -66,13 +63,10 @@ public final class AppHook {
 
             StrictMode.setVmPolicy(builder.penaltyLog().build());
         }
-    }
-
-    public void registerActivityLifecycleCallbackUsedForProcessTool(){
-        registerActivityLifecycleCallbacks(new ActivityLifecycleCallbacksCompat() {
+        get().registerActivityLifecycleCallbacks(get().callbacksCompat =new ActivityLifecycleCallbacksCompat() {
             @Override
             public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
-
+                joinActivity(activity);
             }
 
             @Override
@@ -82,7 +76,7 @@ public final class AppHook {
 
             @Override
             public void onActivityStarted(Activity activity) {
-                appCount++;
+                get().appCount++;
             }
 
             @Override
@@ -97,7 +91,7 @@ public final class AppHook {
 
             @Override
             public void onActivityStopped(Activity activity) {
-                appCount--;
+                get().appCount--;
             }
 
             @Override
@@ -107,13 +101,17 @@ public final class AppHook {
 
             @Override
             public void onActivityDestroyed(Activity activity) {
-
+                get().popActivity(activity);
             }
         });
     }
 
     public int getAppCount() {
         return appCount;
+    }
+
+    public int getStackCount(){
+        return activityStack.size();
     }
 
     public static void onTerminate(Application application){
@@ -147,8 +145,9 @@ public final class AppHook {
      * 添加Activity到堆栈
      */
     public static void joinActivity(Activity activity) {
-
         get().activityStack.add(activity);
+        if(AppEnvironment.DEBUG)
+        GOL.tag("AppHook").e("add activity:" + activity.getClass().getName());
     }
 
     /**
@@ -179,9 +178,7 @@ public final class AppHook {
      */
     public void finishActivity(Activity activity) {
         if (activity != null) {
-            if (activityStack.contains(activity)) {
-                this.activityStack.remove(activity);
-            }
+            this.activityStack.remove(activity);
             if (!activity.isFinishing()) {
                 activity.finish();
             }
@@ -191,9 +188,9 @@ public final class AppHook {
 
     public void popActivity(Activity activity) {
         if (activity != null) {
-            if (activityStack.contains(activity)) {
-                this.activityStack.remove(activity);
-            }
+            this.activityStack.remove(activity);
+            if(AppEnvironment.DEBUG)
+            GOL.tag("AppHook").e("remove activity:" + activity.getClass().getName());
         }
     }
 
@@ -249,6 +246,10 @@ public final class AppHook {
             if(mWatcher!=null&&mWatcher.onAppExit(mApplication)){
                 android.os.Process.killProcess(android.os.Process.myPid());
             }
+            if(callbacksCompat!=null){
+                unregisterActivityLifecycleCallbacks(callbacksCompat);
+            }
+
             System.exit(0);
         } catch (Exception ignored) {
         }
@@ -276,10 +277,6 @@ public final class AppHook {
     }
 
 
-    public static void quitActivity(Activity activity) {
-        get().popActivity(activity);
-    }
-
     public void registerActivityLifecycleCallbacks(ActivityLifecycleCallbacksCompat callback) {
 
         if(!checkApplication()){
@@ -301,5 +298,13 @@ public final class AppHook {
         } else {
             LifecycleCompatDispatcher.getDefault().unregisterActivityLifecycle(callback);
         }
+//        GOL.tag("AppHook").e("unregisterCallbacks");
     }
+
+    public void dumpStackInfo(){
+        for (Activity activity:activityStack){
+            GOL.tag("AppHook").e(activity.getClass().getName());
+        }
+    }
+
 }

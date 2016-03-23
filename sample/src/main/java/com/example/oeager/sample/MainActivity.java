@@ -1,6 +1,7 @@
 package com.example.oeager.sample;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.ContextCompat;
@@ -17,6 +18,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.x91tec.appshelf.components.AppHook;
 import com.x91tec.appshelf.components.activities.BaseAppActivity;
 import com.x91tec.appshelf.components.services.DefaultUIDetector;
 import com.x91tec.appshelf.resources.Colors;
@@ -231,6 +233,13 @@ public class MainActivity extends BaseAppActivity {
             }else {
                 viewHolder.itemView.setBackgroundColor(Colors.YELLOW);
             }
+            viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent i = new Intent(MainActivity.this,TestActivity.class);
+                    startActivity(i);
+                }
+            });
         }
 
         @Override
@@ -285,5 +294,11 @@ public class MainActivity extends BaseAppActivity {
                 });
             }
         }).start();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        AppHook.get().appExit();
     }
 }
