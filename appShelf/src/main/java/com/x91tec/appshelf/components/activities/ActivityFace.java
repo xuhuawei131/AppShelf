@@ -63,12 +63,6 @@ public interface ActivityFace {
 
     public void dismissProgressDialog();
 
-    void initTitleBar();
 
-    void initComponents();
-
-    void initComponentsData();
-
-    void supportSwipeBack(int position, boolean isCaptureFullScreen);
 
 }

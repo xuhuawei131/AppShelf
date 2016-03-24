@@ -13,7 +13,7 @@ ext {
     siteUrl = 'https://github.com/oeager/AppShelf'
     gitUrl = 'https://github.com/oeager/AppShelf.git'
 
-    libraryVersion = '2.1.3'
+    libraryVersion = '2.1.4'
 
     developerId = 'oeager'
     developerName = 'oeager'
@@ -31,9 +31,9 @@ android {
     defaultConfig {
 //        applicationId "com.x91tec.appshelf"
         minSdkVersion 14
-        targetSdkVersion 23
-        versionCode 7
-        versionName "2.1.3"
+        targetSdkVersion 22
+        versionCode 8
+        versionName "2.1.4"
     }
     buildTypes {
         release {

@@ -7,14 +7,10 @@ import android.os.Bundle;
  * Created by oeager on 2015/6/5.
  * email: oeager@foxmail.com
  */
+@Deprecated
 public abstract class ActivityLifecycleAdapter implements ActivityLifecycleCallbacksCompat {
     @Override
     public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
-
-    }
-
-    @Override
-    public void onPostCreate(Activity activity, Bundle savedInstanceState) {
 
     }
 

@@ -8,10 +8,10 @@ import android.content.res.Configuration;
  */
 public interface AppWatcher {
 
-    void onTerminate(Application application);
-
     //need kill the process?
     boolean onAppExit(Application application);
+
+    void onTrimMemory(Application application,int level);
 
     void onLowMemory(Application application);
 

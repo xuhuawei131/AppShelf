@@ -15,7 +15,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import com.x91tec.appshelf.components.AppHook;
 import com.x91tec.appshelf.components.fragments.ProgressDialogFragment;
 import com.x91tec.appshelf.ui.swipeback.SwipeConfiguration;
 import com.x91tec.appshelf.ui.swipeback.SwipePanelLayout;
@@ -44,15 +43,12 @@ public abstract class BaseAppActivity extends AppCompatActivity implements Activ
 
     }
 
+    public abstract void initTitleBar();
 
-    @Override
-    protected void onPostCreate(Bundle savedInstanceState) {
-        super.onPostCreate(savedInstanceState);
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-            LifecycleCompatDispatcher.getDefault().onPostCreate(this, savedInstanceState);
-        }
+    public abstract void initComponents();
 
-    }
+    public abstract void initComponentsData();
+
 
     @Override
     public void setContentView(@LayoutRes int layoutResID) {
@@ -63,7 +59,6 @@ public abstract class BaseAppActivity extends AppCompatActivity implements Activ
     }
 
 
-
     @Override
     public void setContentView(View view) {
         super.setContentView(view);
@@ -71,7 +66,6 @@ public abstract class BaseAppActivity extends AppCompatActivity implements Activ
         initComponents();
         initComponentsData();
     }
-
 
 
     @Override
@@ -188,23 +182,23 @@ public abstract class BaseAppActivity extends AppCompatActivity implements Activ
 
 
     @Override
-    public void showProgressDialog(String msg,boolean cancelable) {
+    public void showProgressDialog(String msg, boolean cancelable) {
         dialogFragment = ProgressDialogFragment.newInstance(msg);
         dialogFragment.setCancelable(cancelable);
-        ((ProgressDialogFragment)dialogFragment).show(this);
+        ((ProgressDialogFragment) dialogFragment).show(this);
     }
 
 
     @Override
-    public void showProgressDialog(@StringRes int id,boolean cancelable) {
-        showProgressDialog(getString(id),cancelable);
+    public void showProgressDialog(@StringRes int id, boolean cancelable) {
+        showProgressDialog(getString(id), cancelable);
     }
 
     @Override
     public void dismissProgressDialog() {
-        if(dialogFragment!=null){
+        if (dialogFragment != null) {
             dialogFragment.dismiss();
-            dialogFragment=null;
+            dialogFragment = null;
         }
     }
 
@@ -214,12 +208,11 @@ public abstract class BaseAppActivity extends AppCompatActivity implements Activ
         this.currentIntent = intent;
     }
 
-    @Override
-    public void supportSwipeBack(@SwipeConfiguration.SwipePosition int position,boolean isCaptureFullScreen) {
+    public void supportSwipeBack(@SwipeConfiguration.SwipePosition int position, boolean isCaptureFullScreen) {
         getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         SwipeConfiguration configuration = new SwipeConfiguration.Builder()
                 .position(position)
-                .edgeSize(isCaptureFullScreen?1f:0.18f)
+                .edgeSize(isCaptureFullScreen ? 1f : 0.18f)
                 .build();
         SwipePanelLayout.attachToActivity(this, configuration);
     }

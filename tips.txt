@@ -1,0 +1,6 @@
+command:
+$ gradle install
+    >BUILD SUCCESSFUL
+
+$ gradle bintrayUpload
+    >SUCCESSFUL

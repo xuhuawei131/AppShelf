@@ -10,7 +10,7 @@ import android.os.Bundle;
  * Created by oeager on 2015/6/5.
  * email: oeager@foxmail.com
  */
-@TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
+@Deprecated
 public class ActivityLifecycleCallbacksWrapper implements Application.ActivityLifecycleCallbacks {
 
     private final ActivityLifecycleCallbacksCompat callbacks;

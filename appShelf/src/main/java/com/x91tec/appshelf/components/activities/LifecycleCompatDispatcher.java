@@ -9,9 +9,8 @@ import java.util.ArrayList;
  * Created by oeager on 2015/6/5.
  * email: oeager@foxmail.com
  */
+@Deprecated
 public class LifecycleCompatDispatcher implements ActivityLifecycleCallbacksCompat {
-
-    private final static LifecycleCompatDispatcher mDispatcher = new LifecycleCompatDispatcher();
 
     private final ArrayList<ActivityLifecycleCallbacksCompat> mActivityLifecycleCallbacksCompats = new ArrayList<>();
 
@@ -30,8 +29,12 @@ public class LifecycleCompatDispatcher implements ActivityLifecycleCallbacksComp
         }
     }
 
+    private static class DispatcherImpl{
+        private final static LifecycleCompatDispatcher mDispatcher = new LifecycleCompatDispatcher();
+    }
+
     public static LifecycleCompatDispatcher getDefault(){
-        return mDispatcher;
+        return DispatcherImpl.mDispatcher;
     }
 
     private Object[] collectActivityLifecycleCallbacks() {
@@ -50,17 +53,6 @@ public class LifecycleCompatDispatcher implements ActivityLifecycleCallbacksComp
         if (callbacks != null) {
             for (Object callback : callbacks) {
                 ((ActivityLifecycleCallbacksCompat) callback).onActivityCreated(activity,
-                        savedInstanceState);
-            }
-        }
-    }
-
-    @Override
-    public void onPostCreate(Activity activity, Bundle savedInstanceState) {
-        Object[] callbacks = collectActivityLifecycleCallbacks();
-        if (callbacks != null) {
-            for (Object callback : callbacks) {
-                ((ActivityLifecycleCallbacksCompat) callback).onPostCreate(activity,
                         savedInstanceState);
             }
         }
