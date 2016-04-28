@@ -9,9 +9,6 @@ import android.os.Bundle;
 import android.os.StrictMode;
 
 import com.developer.bsince.log.GOL;
-import com.x91tec.appshelf.components.activities.ActivityLifecycleCallbacksCompat;
-import com.x91tec.appshelf.components.activities.ActivityLifecycleCallbacksWrapper;
-import com.x91tec.appshelf.components.activities.LifecycleCompatDispatcher;
 
 import java.util.Iterator;
 import java.util.Stack;
@@ -290,40 +287,8 @@ public final class AppHook {
         return (App) app;
     }
 
-    /**
-     * this method is deprecated on 4.0 or above
-     *
-     * @param callback
-     */
-    @Deprecated
-    public void registerActivityLifecycleCallbacks(ActivityLifecycleCallbacksCompat callback) {
 
-        if (!checkApplication()) {
-            return;
-        }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-            get().mApplication.registerActivityLifecycleCallbacks(new ActivityLifecycleCallbacksWrapper(callback));
-        } else {
-            LifecycleCompatDispatcher.getDefault().registerActivityLifecycle(callback);
-        }
-    }
 
-    /**
-     * this method is deprecated on 4.0 or above
-     *
-     * @param callback
-     */
-    @Deprecated
-    public void unregisterActivityLifecycleCallbacks(ActivityLifecycleCallbacksCompat callback) {
-        if (!checkApplication()) {
-            return;
-        }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-            get().mApplication.unregisterActivityLifecycleCallbacks(new ActivityLifecycleCallbacksWrapper(callback));
-        } else {
-            LifecycleCompatDispatcher.getDefault().unregisterActivityLifecycle(callback);
-        }
-    }
 
     public String dumpStackInfo() {
         StringBuilder stringBuilder = new StringBuilder();

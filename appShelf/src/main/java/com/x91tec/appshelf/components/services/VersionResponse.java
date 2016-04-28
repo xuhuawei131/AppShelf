@@ -146,14 +146,18 @@ public class VersionResponse {
             if(TextUtils.isEmpty(fileName)){
                 fileName = FileUtil.getFileName(linkUri);
             }
-            StringBuilder buffer = new StringBuilder();
-            String fn = FileUtil.getFileNameNoFormat(linkUri);
-            String format = FileUtil.getFileFormat(fileName);
+            try{
+                StringBuilder buffer = new StringBuilder();
+                String fn = FileUtil.getFileNameNoFormat(fileName);
+                String format = FileUtil.getFileFormat(fileName);
 
-            buffer.append(fn).append("_").append(newVersionName).append(".").append(format);
-            fileName = buffer.toString();
+                buffer.append(fn).append("_").append(newVersionName).append(".").append(format);
+                fileName = buffer.toString();
 
-            tempName = getTempFileName(fileName);
+                tempName = getTempFileName(fileName);
+            }catch (Exception e){
+
+            }
 
             if(TextUtils.isEmpty(title)){
                 title = AppEnvironment.NAME;

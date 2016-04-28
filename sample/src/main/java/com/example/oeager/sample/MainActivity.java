@@ -2,61 +2,77 @@ package com.example.oeager.sample;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.util.SortedList;
-import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.x91tec.appshelf.components.AppHook;
 import com.x91tec.appshelf.components.activities.BaseAppActivity;
-import com.x91tec.appshelf.components.services.DefaultUIDetector;
-import com.x91tec.appshelf.resources.Colors;
+import com.x91tec.appshelf.ui.MultiStateLayout;
+import com.x91tec.appshelf.v7.Callback;
 import com.x91tec.appshelf.v7.DecorationFactory;
-import com.x91tec.appshelf.v7.IDataGetter;
-import com.x91tec.appshelf.v7.PageLoadingFooter;
-import com.x91tec.appshelf.v7.RecyclerViewCompat;
-import com.x91tec.appshelf.v7.RecyclerViewScrollUpListener;
-import com.x91tec.appshelf.v7.SimpleLoadFooter;
-import com.x91tec.appshelf.v7.XDividerDecoration;
+import com.x91tec.appshelf.v7.LinearDecoration;
+import com.x91tec.appshelf.v7.SizeLayout;
+import com.x91tec.appshelf.v7.XRecyclerView;
 
 import java.util.ArrayList;
 
 public class MainActivity extends BaseAppActivity {
 
-    private RecyclerView recyclerView;
+    private XRecyclerView recyclerView;
 
-    /**服务器端一共多少条数据*/
+    /**
+     * 服务器端一共多少条数据
+     */
     private static final int TOTAL_COUNTER = 64;
 
-    /**每一页展示多少条数据*/
+    /**
+     * 每一页展示多少条数据
+     */
     private static final int REQUEST_COUNT = 10;
 
-    /**已经获取到多少条数据了*/
+    /**
+     * 已经获取到多少条数据了
+     */
     private int mCurrentCounter = 0;
 
     private DataAdapter mDataAdapter = null;
+
+    MultiStateLayout.StateController controller;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        ViewGroup content =  (ViewGroup) findViewById(R.id.root);
+        MultiStateLayout layout = MultiStateLayout.attach(this,content)
+                .attachLayout(MultiStateLayout.STATE_EMPTY, R.layout.state_empty)
+                .attachLayout(MultiStateLayout.STATE_ERROR, R.layout.state_error)
+                .attachLayout(MultiStateLayout.STATE_LOADING, R.layout.state_loading);
+        controller = layout.compile();
+//        showToast("content:count___{"+layout.getChildCount());
+//        controller.showLoading(false);
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
+//        getMenuInflater().inflate(R.menu.menu_main, menu);
+        menu.add(1, 1, 1, "显示内容");
+        menu.add(1, 2, 1, "暂无数据");
+        menu.add(1, 3, 1, "加载失败");
+        menu.add(1, 4, 1, "正在加载");
         return true;
     }
 
@@ -67,9 +83,19 @@ public class MainActivity extends BaseAppActivity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        switch (id) {
+            case 1:
+                controller.showContent(true);
+                return true;
+            case 2:
+                controller.showEmpty(true);
+                return true;
+            case 3:
+                controller.showError(true);
+                return true;
+            case 4:
+                controller.showLoading(true);
+                return true;
         }
 
         return super.onOptionsItemSelected(item);
@@ -79,7 +105,7 @@ public class MainActivity extends BaseAppActivity {
     public void initTitleBar() {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
+        recyclerView = (XRecyclerView) findViewById(R.id.recyclerView);
 
     }
 
@@ -115,31 +141,63 @@ public class MainActivity extends BaseAppActivity {
         LinearLayoutManager manager = new LinearLayoutManager(this);
         manager.setOrientation(LinearLayoutManager.VERTICAL);
         recyclerView.setLayoutManager(manager);
-        IDataGetter dataGetter = new IDataGetter() {
+        SizeLayout footer = (SizeLayout) findViewById(R.id.footer);
+        recyclerView.attachFooter(footer, new Callback() {
             @Override
-            public void loadingData() {
-                int state = RecyclerViewCompat.getRecyclerLoadingState(recyclerView);
-                if (state == PageLoadingFooter.VIEW_STATE_LOADING) {
-                    return;
-                }
-
-                if (mCurrentCounter < TOTAL_COUNTER) {
-                    onLoading();
-                    RecyclerViewCompat.tryToGetLoadingFooter(recyclerView).startLoading();
-                } else {
-                    RecyclerViewCompat.tryToGetLoadingFooter(recyclerView).loadLastPage();
-                }
+            public void onNextPageLoad() {
+//                onLoading();
             }
-        };
-        RecyclerViewCompat.setAdapterAndLoadingFooter(recyclerView, mDataAdapter, dataGetter);
-        XDividerDecoration decoration = new DecorationFactory.Builder()
-                .onlySize(30)
-                .orientation(DecorationFactory.HORIZONTAL)
-                .paintBottom(true)
-                        .gridLayout(false)
-//                .drawable(ContextCompat.getDrawable(this,R.drawable.divider))
+        });
+        Paint p = new Paint();
+        p.setColor(Color.RED);
+        p.setStrokeWidth(100);
+        LinearDecoration decoration = new LinearDecoration.Builder(DecorationFactory.VERTICAL)
+                .header(Color.RED, 1)
+                .footer(Color.BLUE, 10)
+                .colorProvider(new DecorationFactory.ColorProvider() {
+                    @Override
+                    public int dividerColor(int position, RecyclerView parent) {
+                        int color = 0;
+                        switch (position) {
+                            case 0:
+                                color = Color.WHITE;
+                                break;
+                            case 1:
+                                color = Color.RED;
+                                break;
+                            case 2:
+                                color = Color.BLUE;
+                                break;
+                            case 3:
+                                color = Color.YELLOW;
+                                break;
+                            default:
+                                break;
+                        }
+                        return color;
+                    }
+                })
+                .size(new DecorationFactory.SizeProvider() {
+                    @Override
+                    public int dividerSize(int position, RecyclerView parent) {
+                        return 100 - 20 * position;
+                    }
+                })
+                .marginProvider(new DecorationFactory.MarginProvider() {
+                    @Override
+                    public int startMargin(int position, RecyclerView parent) {
+                        return position + 1;
+                    }
+
+                    @Override
+                    public int endMargin(int position, RecyclerView parent) {
+                        return position + 1;
+                    }
+                })
                 .build();
         recyclerView.addItemDecoration(decoration);
+        recyclerView.setAdapter(mDataAdapter);
+
     }
 
     private class DataAdapter extends RecyclerView.Adapter {
@@ -201,7 +259,7 @@ public class MainActivity extends BaseAppActivity {
         public void addItems(ArrayList<ItemModel> list) {
             mSortedList.beginBatchedUpdates();
 
-            for(ItemModel itemModel : list) {
+            for (ItemModel itemModel : list) {
                 mSortedList.add(itemModel);
             }
 
@@ -227,16 +285,16 @@ public class MainActivity extends BaseAppActivity {
             ItemModel item = mSortedList.get(position);
 
             ViewHolder viewHolder = (ViewHolder) holder;
+//            if(position%2==0){
+//                viewHolder.itemView.setBackgroundColor(Colors.BLUE);
+//            }else {
+//                viewHolder.itemView.setBackgroundColor(Colors.YELLOW);
+//            }
             viewHolder.textView.setText(item.title);
-            if(position%2==0){
-                viewHolder.itemView.setBackgroundColor(Colors.BLUE);
-            }else {
-                viewHolder.itemView.setBackgroundColor(Colors.YELLOW);
-            }
             viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Intent i = new Intent(MainActivity.this,TestActivity.class);
+                    Intent i = new Intent(MainActivity.this, TestActivity.class);
                     startActivity(i);
                 }
             });
@@ -259,7 +317,7 @@ public class MainActivity extends BaseAppActivity {
         }
     }
 
-    void onLoading(){
+    void onLoading() {
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -270,7 +328,7 @@ public class MainActivity extends BaseAppActivity {
                 }
                 final ArrayList<ItemModel> dataList = new ArrayList<>();
                 int startCount = mCurrentCounter;
-                for (int i = startCount; i < startCount+10; i++) {
+                for (int i = startCount; i < startCount + 10; i++) {
 
                     ItemModel item = new ItemModel();
                     item.id = i;
@@ -281,14 +339,10 @@ public class MainActivity extends BaseAppActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        if (mCurrentCounter >= 39) {
-                            RecyclerViewCompat.tryToGetLoadingFooter(recyclerView).loadErrorHappened();
-                            return;
-                        }
-                        RecyclerViewCompat.tryToGetLoadingFooter(recyclerView).finishLoading();
+
                         mDataAdapter.addItems(dataList);
                         mDataAdapter.notifyDataSetChanged();
-                        mCurrentCounter =mDataAdapter.getItemCount();
+                        mCurrentCounter = mDataAdapter.getItemCount();
 
                     }
                 });

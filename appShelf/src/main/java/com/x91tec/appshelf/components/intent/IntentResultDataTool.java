@@ -8,6 +8,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 
+import com.x91tec.appshelf.storage.IOUtils;
+
 /**
  * Created by oeager on 2015/11/11.
  * email:oeager@foxmail.com
@@ -39,6 +41,7 @@ public final class IntentResultDataTool {
             results[1] = cursor.getString(1);
             return results;
         }
+        IOUtils.closeQuietly(cursor);
 
         return null;
     }

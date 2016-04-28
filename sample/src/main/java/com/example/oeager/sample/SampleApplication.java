@@ -1,15 +1,12 @@
 package com.example.oeager.sample;
 
-import android.app.Activity;
 import android.app.Application;
 import android.content.res.Configuration;
-import android.os.Bundle;
 
 import com.developer.bsince.log.AndroidLogger;
 import com.developer.bsince.log.GOL;
 import com.x91tec.appshelf.components.AppHook;
 import com.x91tec.appshelf.components.AppWatcher;
-import com.x91tec.appshelf.components.activities.ActivityLifecycleCallbacksCompat;
 
 /**
  * Created by oeager on 16-3-8.

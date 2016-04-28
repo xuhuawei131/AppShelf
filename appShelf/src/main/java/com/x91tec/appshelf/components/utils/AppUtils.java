@@ -43,7 +43,7 @@ public class AppUtils {
     public static PackageInfo getPackageInfo(Context context) {
         PackageInfo info = null;
         try {
-            info = context.getPackageManager().getPackageInfo(context.getPackageName(), PackageManager.GET_ACTIVITIES);
+            info = context.getPackageManager().getPackageInfo(context.getPackageName(),0);
         } catch (NameNotFoundException e) {
             e.printStackTrace(System.err);
         }
@@ -99,7 +99,7 @@ public class AppUtils {
         PackageManager pm = ctx.getPackageManager();
         PackageInfo pi = null;
         try {
-            pi = pm.getPackageInfo(pkgName, PackageManager.GET_ACTIVITIES);
+            pi = pm.getPackageInfo(pkgName, 0);
             return pi.applicationInfo.loadIcon(pm);
         } catch (PackageManager.NameNotFoundException e) {
         }
@@ -175,7 +175,7 @@ public class AppUtils {
 
     public static Drawable getAPKIconDrawable(Context ctx, String filePath) {
         PackageManager pm = ctx.getPackageManager();
-        PackageInfo pkgInfo = pm.getPackageArchiveInfo(filePath, PackageManager.GET_ACTIVITIES);
+        PackageInfo pkgInfo = pm.getPackageArchiveInfo(filePath,0);
         if (pkgInfo != null) {
             ApplicationInfo appInfo = pkgInfo.applicationInfo;
             appInfo.sourceDir = filePath;
@@ -188,7 +188,7 @@ public class AppUtils {
     public static PackageInfo getPackageInfo(Context ctx, String pkgName) {
         PackageManager pm = ctx.getPackageManager();
         try {
-            return pm.getPackageInfo(pkgName, PackageManager.GET_ACTIVITIES);
+            return pm.getPackageInfo(pkgName, 0);
         } catch (PackageManager.NameNotFoundException e) {
         }
         return null;
@@ -197,7 +197,7 @@ public class AppUtils {
     public static ApplicationInfo getApplicationInfo(Context ctx, String pkgName) {
         PackageManager pm = ctx.getPackageManager();
         try {
-            return pm.getPackageInfo(pkgName, PackageManager.GET_SIGNATURES).applicationInfo;
+            return pm.getPackageInfo(pkgName,0).applicationInfo;
         } catch (PackageManager.NameNotFoundException e) {
         }
         return null;
@@ -205,7 +205,7 @@ public class AppUtils {
 
     public static PackageInfo getAPKPackageInfo(Context ctx, String filePath) {
         PackageManager pm = ctx.getPackageManager();
-        PackageInfo pi = pm.getPackageArchiveInfo(filePath, PackageManager.GET_ACTIVITIES);
+        PackageInfo pi = pm.getPackageArchiveInfo(filePath,0);
         if (pi != null) {
             pi.applicationInfo.sourceDir = filePath;
             pi.applicationInfo.publicSourceDir = filePath;
@@ -220,7 +220,7 @@ public class AppUtils {
     public static String getAppName(Context ctx, String pkg) {
         PackageManager pm = ctx.getPackageManager();
         try {
-            ApplicationInfo ai = pm.getPackageInfo(pkg, PackageManager.GET_ACTIVITIES).applicationInfo;
+            ApplicationInfo ai = pm.getPackageInfo(pkg, 0).applicationInfo;
             return ai.loadLabel(pm).toString();
         } catch (PackageManager.NameNotFoundException e) {
         }
@@ -231,8 +231,7 @@ public class AppUtils {
         PackageInfo pis = null;
         try {
             pis = ctx.getPackageManager()
-                    .getPackageInfo(pkgName,
-                            PackageManager.GET_SIGNATURES);
+                    .getPackageInfo(pkgName,0);
             return hexDigest(pis.signatures[0].toByteArray());
         } catch (NameNotFoundException e) {
             e.printStackTrace();

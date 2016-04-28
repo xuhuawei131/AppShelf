@@ -31,7 +31,6 @@ public final class NotificationGenerator {
         builder.setContentIntent(pendingIntent);// 该通知要启动的Intent
         builder.setSmallIcon(smallIcon);// 设置顶部状态栏的小图标
         builder.setTicker(ticker);// 在顶部状态栏中的提示信息
-
         builder.setContentTitle(title);// 设置通知中心的标题
         builder.setContentText(content);// 设置通知中心中的内容
         builder.setWhen(System.currentTimeMillis());

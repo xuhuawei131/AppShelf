@@ -12,16 +12,11 @@ import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-
 import com.x91tec.appshelf.R;
+import com.x91tec.appshelf.components.activities.AppEmptySessions;
+import com.x91tec.appshelf.ui.MultiStateLayout;
 
-import static com.x91tec.appshelf.v4.ViewTool.*;
-import static com.x91tec.appshelf.v4.ViewTool.equalIntTag;
-import static com.x91tec.appshelf.v4.ViewTool.hideView;
-import static com.x91tec.appshelf.v4.ViewTool.hideViewAnimated;
-import static com.x91tec.appshelf.v4.ViewTool.safeClearViewAnimation;
-import static com.x91tec.appshelf.v4.ViewTool.showView;
-import static com.x91tec.appshelf.v4.ViewTool.showViewAnimated;
+import static com.x91tec.appshelf.ui.MultiStateLayout.*;
 
 /**
  * Created by oeager on 2015/11/10.
@@ -31,15 +26,9 @@ public abstract class SupportAppFragmentWrapper<T extends Activity> extends Frag
 
     private T context;
 
-    private View loadView;
-
-    private FrameLayout failView;
-
-    private View emptyView;
-
-    private View contentFrame;
-
     private boolean hasCalledFirst = false;
+
+    private StateController mStateController;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -50,47 +39,13 @@ public abstract class SupportAppFragmentWrapper<T extends Activity> extends Frag
     @Nullable
     @Override
     public final View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        if (!supportExtraWrapper()) {
+        MultiStateLayout stateLayout = onCreateRootView(inflater, container, savedInstanceState);
+        if (stateLayout == null) {
+            mStateController = AppEmptySessions.fromEmptyNullable(null);
             return onCreateContentView(inflater, container, savedInstanceState);
         }
-        ViewGroup root = onCreateRootView(inflater, container, savedInstanceState);
-        //----add loading view
-        loadView = onCreateLoadingView(inflater, container, savedInstanceState);
-        if (loadView != null) {
-            loadView.setVisibility(View.GONE);
-            FrameLayout.LayoutParams loadParam = new FrameLayout.LayoutParams(
-                    ViewGroup.LayoutParams.WRAP_CONTENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT);
-            loadParam.gravity = Gravity.CENTER;
-
-            root.addView(loadView, loadParam);
-        }
-        //----add errorView
-        failView = new FrameLayout(getContext());
-        failView.setVisibility(View.GONE);
-        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT);
-        params.gravity = Gravity.CENTER;
-        root.addView(failView, params);
-        //-----add contentView
-        contentFrame = onCreateContentView(inflater, container, savedInstanceState);
-        if (contentFrame != null) {
-            root.addView(contentFrame, new FrameLayout.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.MATCH_PARENT));
-        }
-        //----add emptyView
-        emptyView = onCreateEmptyView(inflater, container, savedInstanceState);
-        if (emptyView != null) {
-            emptyView.setVisibility(View.GONE);
-            FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(
-                    ViewGroup.LayoutParams.WRAP_CONTENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT);
-            layoutParams.gravity = Gravity.CENTER;
-            root.addView(emptyView, layoutParams);
-        }
-        return root;
+        mStateController = stateLayout.compile();
+        return stateLayout;
     }
 
 
@@ -109,25 +64,32 @@ public abstract class SupportAppFragmentWrapper<T extends Activity> extends Frag
             onShowToUserFirst();
         }
     }
-
-    @Override
-    public void onDestroyView() {
-        contentFrame = null;
-        failView = null;
-        loadView = emptyView = null;
-        super.onDestroyView();
+    protected View onCreateContentView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        return null;
     }
 
-    protected ViewGroup onCreateRootView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        FrameLayout root = new FrameLayout(getContext());
-        root.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-        return root;
+    protected MultiStateLayout onCreateRootView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        MultiStateLayout stateLayout = new MultiStateLayout(inflater.getContext());
+        stateLayout.attachLayout(STATE_CONTENT, onCreateContentView(inflater, stateLayout, savedInstanceState))
+                .attachLayout(STATE_LOADING, onCreateLoadingView(inflater, stateLayout, savedInstanceState))
+                .attachLayout(STATE_EMPTY, onCreateEmptyView(inflater, stateLayout, savedInstanceState))
+                .attachLayout(STATE_ERROR, onCreateErrorView(inflater, stateLayout, savedInstanceState));
+        return stateLayout;
     }
 
-    protected View onCreateLoadingView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        ProgressBar progressBar = new ProgressBar(getContext());
-        progressBar.setIndeterminate(false);
-        return progressBar;
+    protected View onCreateErrorView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        TextView textView = new TextView(getContext());
+        textView.setText(R.string.error_happened);
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
+        params.gravity = Gravity.CENTER;
+        textView.setLayoutParams(params);
+        textView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onShowToUserFirst();
+            }
+        });
+        return textView;
     }
 
     protected View onCreateEmptyView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -145,24 +107,13 @@ public abstract class SupportAppFragmentWrapper<T extends Activity> extends Frag
         return textView;
     }
 
-    protected View onCreateErrorView(LayoutInflater inflater, ViewGroup container, int errorType) {
-        TextView textView = new TextView(getContext());
-        textView.setText(R.string.error_happened);
+    protected View onCreateLoadingView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        ProgressBar progressBar = new ProgressBar(getContext());
         FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
         params.gravity = Gravity.CENTER;
-        textView.setLayoutParams(params);
-        textView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onShowToUserFirst();
-            }
-        });
-        return textView;
-
-    }
-
-    protected View onCreateContentView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return null;
+        progressBar.setLayoutParams(params);
+        progressBar.setIndeterminate(false);
+        return progressBar;
     }
 
     public T getContext() {
@@ -173,117 +124,8 @@ public abstract class SupportAppFragmentWrapper<T extends Activity> extends Frag
 
     }
 
-    protected boolean supportExtraWrapper() {
-        return true;
-    }
-
-    public void showOnLoadFail(int errorType, boolean animate) {
-        if (failView == null) {
-            return;
-        }
-        hideView(contentFrame);
-        hideView(emptyView);
-
-        if (!equalIntTag(failView, errorType)) {
-            failView.removeAllViews();
-            View errorView = onCreateErrorView(getContext().getLayoutInflater(), failView, errorType);
-            failView.addView(errorView);
-            failView.setTag(errorType);
-        }
-
-        if (failView.getVisibility() == View.VISIBLE) {
-            hideView(loadView);
-            return;
-        }
-
-        if (animate) {
-            showViewAnimated(failView);
-            hideViewAnimated(loadView);
-
-        } else {
-            safeClearViewAnimation(loadView);
-            safeClearViewAnimation(failView);
-            safeClearViewAnimation(contentFrame);
-            safeClearViewAnimation(emptyView);
-        }
-        showView(failView);
-        hideView(loadView);
-    }
-
-    public void showOnBindData(boolean animate) {
-        if (contentFrame == null) {
-            return;
-        }
-        hideView(failView);
-        hideView(emptyView);
-        if (contentFrame.getVisibility() == View.VISIBLE) {
-            hideView(loadView);
-            return;
-        }
-        if (animate) {
-            showViewAnimated(contentFrame);
-            hideViewAnimated(loadView);
-
-        } else {
-            safeClearViewAnimation(loadView);
-            safeClearViewAnimation(failView);
-            safeClearViewAnimation(contentFrame);
-            safeClearViewAnimation(emptyView);
-        }
-        showView(contentFrame);
-        hideView(loadView);
-
-
-    }
-
-    public void showOnEmpty(boolean animate) {
-        if (emptyView == null) {
-            return;
-        }
-        hideView(failView);
-        hideView(contentFrame);
-        if (emptyView.getVisibility() == View.VISIBLE) {
-            hideView(loadView);
-            return;
-        }
-        if (animate) {
-            showViewAnimated(emptyView);
-            hideViewAnimated(loadView);
-
-        } else {
-            safeClearViewAnimation(loadView);
-            safeClearViewAnimation(failView);
-            safeClearViewAnimation(contentFrame);
-            safeClearViewAnimation(emptyView);
-        }
-        showView(emptyView);
-        hideView(loadView);
-
-    }
-
-
-    public void showOnLoading(boolean animate) {
-        if (loadView == null) {
-            return;
-        }
-        hideView(failView);
-        hideView(emptyView);
-        if (loadView.getVisibility() == View.VISIBLE) {
-            hideView(contentFrame);
-            return;
-        }
-        if (animate) {
-            showViewAnimated(loadView);
-            hideViewAnimated(contentFrame);
-
-        } else {
-            safeClearViewAnimation(loadView);
-            safeClearViewAnimation(failView);
-            safeClearViewAnimation(contentFrame);
-            safeClearViewAnimation(emptyView);
-        }
-        showView(loadView);
-        hideView(contentFrame);
+    public StateController getStateController(){
+        return mStateController;
     }
 
     protected abstract void initComponents(View createView, Bundle savedInstanceState);

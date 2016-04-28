@@ -1,15 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <declare-styleable name="SwipeRefreshLayout">
-        <attr name="mode">
-            <enum name="top" value="0" />
-            <enum name="bottom" value="1" />
-            <enum name="both" value="2" />
-        </attr>
-    </declare-styleable>
-
-
     <declare-styleable name="FlowLayout">
         <attr name="android:orientation" />
         <attr name="layoutDirection" format="enum">
@@ -28,4 +19,5 @@
 
     <!-- define theme style -->
     <attr name="progressBarBackground" format="reference"/>
+
 </resources>

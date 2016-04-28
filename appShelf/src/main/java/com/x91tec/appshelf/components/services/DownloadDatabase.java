@@ -31,9 +31,9 @@ public class DownloadDatabase extends SQLiteOpenHelper {
     private DownloadDatabase(Context context) {
         super(context, DB_NAME, null, DB_VERSION);
         table = new SQLiteController.Table(TABLE_NAME);
-        table.addColumn(new SQLiteController.Column(COLUMN_ID,SQLiteController.TYPE_INTEGER,SQLiteController.buildAutoIncrementPrimaryKey()));
-        table.addColumn(new SQLiteController.Column(COLUMN_TAG_ID,SQLiteController.TYPE_INTEGER,SQLiteController.CONSTRAINT_NOT_NULL));
-        table.addColumn(new SQLiteController.Column(COLUMN_URI, SQLiteController.TYPE_TEXT, SQLiteController.CONSTRAINT_UNIQUE));
+        table.addColumn(COLUMN_ID,SQLiteController.TYPE_INTEGER,SQLiteController.buildAutoIncrementPrimaryKey());
+        table.addColumn(COLUMN_TAG_ID,SQLiteController.TYPE_INTEGER,SQLiteController.CONSTRAINT_NOT_NULL);
+        table.addColumn(COLUMN_URI, SQLiteController.TYPE_TEXT, SQLiteController.CONSTRAINT_UNIQUE);
     }
 
     @Override
